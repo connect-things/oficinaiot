@@ -1,3 +1,4 @@
+#include <SoftwareSerial.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <LiquidCrystal.h>
@@ -11,6 +12,7 @@ OneWire oneWire(ONE_WIRE_BUS);
 
 
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+SoftwareSerial bt = SoftwareSerial(10, 11);
  
 // Armazena as temperaturas minima e maxima
 float tempMin = 999;
@@ -22,6 +24,9 @@ DeviceAddress sensor1;
  
 void setup() {
   Serial.begin(9600);
+
+  bt.begin(9600);
+  
   sensors.begin();
   // Localiza e mostra enderecos dos sensores
   Serial.println("Localizando sensores DS18B20...");
@@ -72,8 +77,18 @@ void loop() {
   Serial.print(" Max : ");
   Serial.println(tempMax);
 
+  String tempStr = String(tempC);
   lcd.setCursor(0, 0);
-  lcd.print(String(tempC));
+  lcd.print(tempStr);
+  bt.println(tempStr);
+
+
+  if(bt.available()){
+    String line = bt.readString();
+    Serial.println(line);
+    lcd.setCursor(1, 0);
+    lcd.print(line);
+  }
    
   delay(1000);
 }
